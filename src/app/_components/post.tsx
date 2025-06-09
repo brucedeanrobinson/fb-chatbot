@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 import { api } from "~/trpc/react";
 
@@ -16,12 +16,32 @@ export function LatestPost() {
     },
   });
 
+  const seedPrompts = [
+    "What is the New Earth?",
+    "How is crypto like mycelium?",
+    "Tell me about Gitcoin in forest terms.",
+    "How does Web3 empower communities?",
+    "What does 'mycelial technology' mean?",
+  ];
+  const [placeholder, setPlaceholder] = useState("")
+  useEffect(() => {
+    const index = Math.floor(Math.random() * seedPrompts.length);
+    const randomPrompt = seedPrompts[index];
+    if (randomPrompt !== undefined) {
+      setPlaceholder(randomPrompt);
+    } else {
+      setPlaceholder("Inquire within.")
+    }
+  }, []);
+  // TODO: style like the Message Thread project from last week, with extra flair
+
   return (
-    <div className="w-full max-w-xs">
+    <div className="w-full max-w-xl">
+
       {latestPost ? (
-        <p className="truncate">Your most recent post: {latestPost.name}</p>
+        <p className="truncate">Chatbot: {latestPost.name}</p>
       ) : (
-        <p>You have no posts yet.</p>
+        <p>You have no history with this chatbot.</p>
       )}
       <form
         onSubmit={(e) => {
@@ -32,7 +52,8 @@ export function LatestPost() {
       >
         <input
           type="text"
-          placeholder="Title"
+          name="prompt"
+          placeholder={placeholder}
           value={name}
           onChange={(e) => setName(e.target.value)}
           className="w-full rounded-full bg-white/10 px-4 py-2 text-white"
