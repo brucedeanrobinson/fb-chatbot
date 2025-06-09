@@ -38,8 +38,6 @@ export function LatestPost() {
     }
   }, []);
   // TODO: style like the Message Thread project from last week, with extra flair
-  // NPNgreen: #37c73f
-  // NPNpurple: #5e4780;
 
   return (
     <div className="w-full max-w-xl">
@@ -67,7 +65,7 @@ export function LatestPost() {
         />
         <button
           type="submit"
-          className="cursor-pointer rounded-full bg-green-600 hover:bg-purple-600 px-10 py-3 font-semibold transition"
+          className="cursor-pointer rounded-full bg-primary hover:bg-secondary text-white px-10 py-3 font-semibold transition-colors duration-200"
           disabled={createPost.isPending}
         >
           {createPost.isPending ? "Submitting..." : "Submit"}

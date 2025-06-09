@@ -138,7 +138,15 @@ npx shadcn@latest init
 npx shadcn@latest add button card input
 ```
 
-##
+## tutorial #1 chatbot lesson (useChat to URLs)
+
+- [x] light foundational styling
+- [x] integrate useChat
+- [ ] route.ts
+- [x] customized ui
+  - [x] shadcn custom colors on button https://truecoderguru.com/blog/shadcn/styling-shadcn-ui-buttons
+  - [ ] status
+  - [ ] error state
 
 ## notes
 
