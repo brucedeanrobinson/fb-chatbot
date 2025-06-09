@@ -121,13 +121,24 @@ On day 3, we will focus on improving our app with authentication and some more p
 
 ## init
 
-- OrbStack open
+- dl T3 app `npx create-t3-app@latest fb-chatbot` (or `.` inside root dir)
+- create supabase, get env, replace `DATABASE_URL` .env
 - `./start-database.sh`
-- create supabase, get env, replace .env
 - `npm run db:push`
-- `bun run dev`
-- `git commit -m "initial commit"`
+- `bun run dev` test it works
+- git commit & push
 - deploy to vercel
+- it works!
+
+## install ai deps
+
+```bash
+npm install ai
+npx shadcn@latest init
+npx shadcn@latest add button card input
+```
+
+##
 
 ## notes
 
