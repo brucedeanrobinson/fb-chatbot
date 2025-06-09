@@ -1,24 +1,15 @@
 "use client";
 
 import { useState, useEffect } from "react";
-
 import { useChat } from '@ai-sdk/react';
-
 import { api } from "~/trpc/react";
+import { Spinner } from "~/components/ui/spinner";
 
 export function LatestPost() {
-  const { messages, input, handleInputChange, handleSubmit } = useChat({});
+  const { messages, input, handleInputChange, handleSubmit, status, stop } = useChat({});
 
+  // todo replace with AI SDK
   const [latestPost] = api.post.getLatest.useSuspenseQuery();
-
-  const utils = api.useUtils();
-  const [name, setName] = useState("");
-  const createPost = api.post.create.useMutation({
-    onSuccess: async () => {
-      await utils.post.invalidate();
-      setName("");
-    },
-  });
 
   const seedPrompts = [
     "What is the New Earth?",
@@ -37,6 +28,7 @@ export function LatestPost() {
       setPlaceholder("Inquire within.")
     }
   }, []);
+
   // TODO: style like the Message Thread project from last week, with extra flair
 
   return (
@@ -63,12 +55,27 @@ export function LatestPost() {
           onChange={handleInputChange}
           className="w-full rounded-full bg-white/10 px-4 py-2 text-white flex-1"
         />
+
+        {/* possible status: submitted, streaming, ready, error */}
+        {(status === 'submitted' || status === 'streaming') && (
+          <div>
+            {status === 'submitted' && <Spinner />}
+            <button type="button" onClick={() => stop()}>
+              Stop
+            </button>
+          </div>
+        )}
+
         <button
           type="submit"
           className="cursor-pointer rounded-full bg-primary hover:bg-secondary text-white px-10 py-3 font-semibold transition-colors duration-200"
-          disabled={createPost.isPending}
+          disabled={status === 'submitted' || status === 'streaming'}
         >
-          {createPost.isPending ? "Submitting..." : "Submit"}
+          {(status === 'submitted' || status === 'streaming') ? (
+            <Spinner color='text-primary' />
+          ) : (
+            "Submit"
+          )}
         </button>
       </form>
     </div>

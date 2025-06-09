@@ -142,10 +142,10 @@ npx shadcn@latest add button card input
 
 - [x] light foundational styling
 - [x] integrate useChat
-- [ ] route.ts
+- [x] route.ts
 - [x] customized ui
   - [x] shadcn custom colors on button https://truecoderguru.com/blog/shadcn/styling-shadcn-ui-buttons
-  - [ ] status
+  - [x] status
   - [ ] error state
 
 ## notes
