@@ -30,6 +30,8 @@ export function LatestPost() {
   }, []);
 
   // TODO: style like the Message Thread project from last week, with extra flair
+  // TODO: extract repeat styles to common
+  const buttonStyle = "cursor-pointer rounded-full bg-primary hover:bg-secondary text-white px-10 py-3 font-semibold transition-colors duration-200"
 
   return (
     <div className="w-full max-w-xl">
@@ -60,7 +62,10 @@ export function LatestPost() {
         {(status === 'submitted' || status === 'streaming') && (
           <div>
             {status === 'submitted' && <Spinner />}
-            <button type="button" onClick={() => stop()}>
+            <button
+              type="button"
+              className={buttonStyle}
+              onClick={() => stop()}>
               Stop
             </button>
           </div>
@@ -68,7 +73,7 @@ export function LatestPost() {
 
         <button
           type="submit"
-          className="cursor-pointer rounded-full bg-primary hover:bg-secondary text-white px-10 py-3 font-semibold transition-colors duration-200"
+          className={buttonStyle}
           disabled={status === 'submitted' || status === 'streaming'}
         >
           {(status === 'submitted' || status === 'streaming') ? (
