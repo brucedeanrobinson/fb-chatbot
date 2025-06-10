@@ -68,6 +68,13 @@ export function LatestPost() {
   const buttonPrimaryStyle = "bg-primary hover:bg-secondary"
   const buttonSecondaryStyle = "bg-gray-600 hover:bg-gray-500"
 
+  const handleSendMessage = (event: React.FormEvent) => {
+    handleSubmit(event, {
+      allowEmptySubmit: true,
+      body: input.trim() === '' ? { customKey: placeholder } : undefined
+    });
+  };
+
   return (
     <div className="w-full max-w-xl">
       {/* {latestPost ? (
@@ -130,26 +137,19 @@ export function LatestPost() {
         </div>
       )}
 
-      <form onSubmit={event => {
-        // If empty, prevent default and manually append the placeholder
-        if (input.trim() === '') {
-          event.preventDefault();
-          void append({
-            role: 'user',
-            content: placeholder,
-          });
-        } else {
-          handleSubmit(event, {
-            allowEmptySubmit: true,
-            body: input.trim() === '' ? { customKey: placeholder } : undefined
-          });
-        }
-      }} className="flex flex-col gap-4">
+      <form onSubmit={handleSendMessage} className="flex flex-col gap-4">
         <textarea
           name="prompt"
           placeholder={placeholder}
           value={input}
           onChange={event => setInput(event.target.value)}
+          onKeyDown={event => {
+            if (event.key === 'Enter' && !event.shiftKey) {
+              event.preventDefault();
+              const form = event.target.closest('form');
+              form?.requestSubmit();
+            }
+          }}
           disabled={status !== 'ready'}
           className={clsx(
             roundedUiElement,
