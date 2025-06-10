@@ -7,7 +7,10 @@ import { Spinner } from "~/components/ui/spinner";
 import clsx from "clsx";
 
 export function LatestPost() {
-  const { messages, setMessages, input, setInput, append, handleSubmit, status } = useChat({});
+  const { messages, setMessages, input, setInput, handleSubmit, status, stop, reload } = useChat({
+    // Throttle the messages and data updates to 50ms for smoother performance
+    experimental_throttle: 50
+  });
 
   // todo replace with AI SDK
   const [latestPost] = api.post.getLatest.useSuspenseQuery();
@@ -37,6 +40,7 @@ export function LatestPost() {
   // TODO: style like the Message Thread project from last week, with extra flair
   // TODO: extract repeat styles to common
   const buttonStyle = "cursor-pointer rounded-full bg-primary hover:bg-secondary text-white px-10 py-3 font-semibold transition-colors duration-200"
+  const secondaryButtonStyle = "cursor-pointer rounded-full bg-gray-600 hover:bg-gray-500 text-white px-6 py-2 font-semibold transition-colors duration-200"
 
   return (
     <div className="w-full max-w-xl">
@@ -54,6 +58,37 @@ export function LatestPost() {
         </div>
       ))}
 
+      {/* Show streaming status and stop/regenerate controls */}
+      {(status === 'submitted' || status === 'streaming') && (
+        <div className="flex items-center gap-2 my-4">
+          {status === 'submitted' && <Spinner color="text-primary" />}
+          <span className="text-sm text-gray-400">
+            {status === 'submitted' ? 'Sending...' : 'AI is responding...'}
+          </span>
+          <button
+            type="button"
+            onClick={() => stop()}
+            className={clsx(secondaryButtonStyle, "text-sm px-4 py-1")}
+          >
+            Stop
+          </button>
+        </div>
+      )}
+
+      {/* Show regenerate button when ready or error */}
+      {(status === 'ready' || status === 'error') && messages.length > 0 && (
+        <div className="flex justify-end my-4">
+          <button
+            type="button"
+            onClick={() => reload()}
+            disabled={!(status === 'ready' || status === 'error')}
+            className={clsx(secondaryButtonStyle, "text-sm px-4 py-1")}
+          >
+            Regenerate Last Response
+          </button>
+        </div>
+      )}
+
       <form onSubmit={handleSubmit} className="flex gap-2">
         <input
           type="text"
@@ -65,6 +100,7 @@ export function LatestPost() {
           className="w-full rounded-full bg-white/10 px-4 py-2 text-white flex-1"
         />
 
+        {/* possible status: submitted, streaming, ready, error */}
         <button
           type="submit"
           className={clsx(
