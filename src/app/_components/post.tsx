@@ -1,15 +1,17 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useChat } from '@ai-sdk/react';
+import type { Attachment } from '@ai-sdk/ui-utils';
 import { api } from "~/trpc/react";
+import Image from 'next/image'
 import clsx from "clsx";
 
 import { Spinner } from "~/components/ui/spinner";
 import { getRandomPrompt } from "~/lib/prompts";
 
 export function LatestPost() {
-  const { messages, setMessages, input, setInput, handleSubmit, append, status, stop, reload } = useChat({
+  const { messages, setMessages, input, setInput, handleSubmit, handleInputChange, status, append, stop, reload } = useChat({
     // Custom API endpoint and request configuration
     api: '/api/chat', // can change this to '/api/custom-chat' if needed
     headers: {
@@ -49,6 +51,21 @@ export function LatestPost() {
     }
   });
 
+  const [files, setFiles] = useState<Attachment[]>([
+    {
+      name: 'earth.png',
+      contentType: 'image/png',
+      url: 'https://example.com/earth.png',
+    },
+    {
+      name: 'moon.png',
+      contentType: 'image/png',
+      url: 'data:image/png;base64,iVBORw0KGgo...',
+    },
+  ]);
+
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
   // todo replace with AI SDK x databases
   // const [latestPost] = api.post.getLatest.useSuspenseQuery();
 
@@ -83,7 +100,21 @@ export function LatestPost() {
               <span className="font-bold">
                 {message.role === 'user' ? 'User: ' : 'AI: '}
               </span>
-              <span>{message.content}</span>
+              {message.content}
+
+              <div>
+                {message.experimental_attachments
+                  ?.filter(attachment =>
+                    attachment.contentType?.startsWith('image/'),
+                  )
+                  .map((attachment, index) => (
+                    <Image
+                      key={`${message.id}-${index}`}
+                      src={attachment.url}
+                      alt={attachment.name ?? 'Attached image'}
+                    />
+                  ))}
+              </div>
             </div>
             <button
               onClick={() => handleDelete(message.id)}
@@ -141,8 +172,15 @@ export function LatestPost() {
         } else {
           handleSubmit(event, {
             allowEmptySubmit: true,
+            experimental_attachments: files,
             body: input.trim() === '' ? { customKey: placeholder } : undefined
           });
+
+          setFiles(files);
+
+          if (fileInputRef.current) {
+            fileInputRef.current.value = '';
+          }
         }
       }} className="flex flex-col gap-4">
         <textarea
@@ -159,26 +197,43 @@ export function LatestPost() {
         />
 
         {/* possible status: submitted, streaming, ready, error */}
-        <button
-          type="submit"
-          className={clsx(
-            roundedUiElement,
-            buttonStyle,
-            buttonPrimaryStyle,
-            'w-1/4 mx-auto',
-            ['submitted', 'streaming', 'error'].includes(status) && 'cursor-not-allowed',
-            status === 'error' && 'bg-error-light'
-          )}
-          disabled={['submitted', 'streaming', 'error'].includes(status)}
-        >
-          {status === 'submitted' || status === 'streaming' ? (
-            <Spinner color="text-primary" />
-          ) : status === 'error' ? (
-            'Error'
-          ) : (
-            'Submit'
-          )}
-        </button>
+        <div className="flex flex-row place-content-between">
+          <input
+            type="file"
+            className={clsx(
+              roundedUiElement,
+              buttonStyle,
+              buttonSecondaryStyle,
+              'w-max')}
+            onChange={event => {
+              handleSubmit(event, {
+                experimental_attachments: files,
+              })
+            }}
+            multiple
+            ref={fileInputRef}
+          />
+          <button
+            type="submit"
+            className={clsx(
+              roundedUiElement,
+              buttonStyle,
+              buttonPrimaryStyle,
+              'w-1/4 mx-auto',
+              ['submitted', 'streaming', 'error'].includes(status) && 'cursor-not-allowed',
+              status === 'error' && 'bg-error-light'
+            )}
+            disabled={['submitted', 'streaming', 'error'].includes(status)}
+          >
+            {status === 'submitted' || status === 'streaming' ? (
+              <Spinner color="text-primary" />
+            ) : status === 'error' ? (
+              'Error'
+            ) : (
+              'Submit'
+            )}
+          </button>
+        </div>
       </form>
     </div>
   );
