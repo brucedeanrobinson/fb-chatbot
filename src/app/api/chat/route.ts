@@ -38,5 +38,7 @@ export async function POST(req: Request) {
     },
     // Control whether to send usage information back to client
     sendUsage: true,
+    // Forward sources (currently limited to web pages) that ground the response to the client
+    sendSources: true,
   });
 }
