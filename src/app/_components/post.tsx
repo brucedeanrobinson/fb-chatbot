@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { useChat } from '@ai-sdk/react';
 import { api } from "~/trpc/react";
+import Image from 'next/image'
 import clsx from "clsx";
 
 import { Spinner } from "~/components/ui/spinner";
@@ -83,7 +84,15 @@ export function LatestPost() {
               <span className="font-bold">
                 {message.role === 'user' ? 'User: ' : 'AI: '}
               </span>
-              <span>{message.content}</span>
+              {message.parts.map((part, index) => {
+                if (part.type === 'text') {
+                  return <div key={index}>{part.text}</div>;
+                } else if (part.type === 'file' && part.mimeType.startsWith('image/')) {
+                  return (
+                    <Image key={index} src={`data:${part.mimeType};base64,${part.data}`} alt="" />
+                  );
+                }
+              })}
             </div>
             <button
               onClick={() => handleDelete(message.id)}
