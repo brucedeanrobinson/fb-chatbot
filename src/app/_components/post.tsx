@@ -63,8 +63,10 @@ export function LatestPost() {
 
   // TODO: style like the Message Thread project from last week, with extra flair
   // TODO: extract repeat styles to common
-  const buttonStyle = "cursor-pointer rounded-full bg-primary hover:bg-secondary text-white px-10 py-3 font-semibold transition-colors duration-200"
-  const secondaryButtonStyle = "cursor-pointer rounded-full bg-gray-600 hover:bg-gray-500 text-white px-6 py-2 font-semibold transition-colors duration-200"
+  const roundedUiElement = "rounded-lg cursor-pointer text-white px-6 py-3"
+  const buttonStyle = "font-semibold transition-colors duration-200"
+  const buttonPrimaryStyle = "bg-primary hover:bg-secondary"
+  const buttonSecondaryStyle = "bg-gray-600 hover:bg-gray-500"
 
   return (
     <div className="w-full max-w-xl">
@@ -103,7 +105,7 @@ export function LatestPost() {
           <button
             type="button"
             onClick={() => stop()}
-            className={clsx(secondaryButtonStyle, "text-sm px-4 py-1")}
+            className={clsx(buttonSecondaryStyle, "text-sm px-4 py-1")}
           >
             Stop
           </button>
@@ -117,7 +119,11 @@ export function LatestPost() {
             type="button"
             onClick={() => reload()}
             disabled={!(status === 'ready' || status === 'error')}
-            className={clsx(secondaryButtonStyle, "text-sm px-4 py-1")}
+            className={clsx(
+              roundedUiElement,
+              buttonStyle,
+              buttonSecondaryStyle,
+              "text-sm px-4 py-1")}
           >
             Regenerate Last Response
           </button>
@@ -138,22 +144,25 @@ export function LatestPost() {
             body: input.trim() === '' ? { customKey: placeholder } : undefined
           });
         }
-      }} className="flex gap-2">
-        <input
-          type="text"
+      }} className="flex flex-col gap-4">
+        <textarea
           name="prompt"
           placeholder={placeholder}
           value={input}
           onChange={event => setInput(event.target.value)}
           disabled={status !== 'ready'}
-          className="w-full rounded-full bg-white/10 px-4 py-2 text-white flex-1"
+          className={clsx(roundedUiElement, "w-full bg-white/10 flex-1")}
+          rows={3}
         />
 
         {/* possible status: submitted, streaming, ready, error */}
         <button
           type="submit"
           className={clsx(
+            roundedUiElement,
             buttonStyle,
+            buttonPrimaryStyle,
+            'w-1/4 mx-auto',
             ['submitted', 'streaming', 'error'].includes(status) && 'cursor-not-allowed',
             status === 'error' && 'bg-error-light'
           )}
