@@ -8,6 +8,10 @@ import clsx from "clsx";
 
 export function LatestPost() {
   const { messages, setMessages, input, setInput, handleSubmit, status, stop, reload } = useChat({
+
+    //could change to plain text streaming but lose tool calls, usage information, finish reasons https://ai-sdk.dev/docs/ai-sdk-ui/stream-protocol
+    //streamProtocol: 'text',
+
     // Custom API endpoint and request configuration
     api: '/api/chat', // can change this to '/api/custom-chat' if needed
     headers: {
@@ -87,8 +91,10 @@ export function LatestPost() {
 
       {messages.map(message => (
         <div key={message.id}>
-          {message.role === 'user' ? 'User: ' : 'AI: '}
-          {message.content}
+          <div>
+            {message.role === 'user' ? 'User: ' : 'AI: '}
+            {message.content}
+          </div>
           <button onClick={() => handleDelete(message.id)}>Delete</button>
         </div>
       ))}
@@ -126,9 +132,9 @@ export function LatestPost() {
 
       <form onSubmit={event => {
         handleSubmit(event, {
-          body: {
-            customKey: 'customValue',
-          },
+          allowEmptySubmit: true,
+          // If input is empty, use the placeholder
+          body: input.trim() === '' ? { customContent: placeholder } : undefined
         });
       }} className="flex gap-2">
         <input
