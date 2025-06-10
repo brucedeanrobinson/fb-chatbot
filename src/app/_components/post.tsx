@@ -7,7 +7,7 @@ import { Spinner } from "~/components/ui/spinner";
 import clsx from "clsx";
 
 export function LatestPost() {
-  const { messages, setMessages, input, handleInputChange, handleSubmit, status } = useChat({});
+  const { messages, setMessages, input, setInput, append, handleSubmit, status } = useChat({});
 
   // todo replace with AI SDK
   const [latestPost] = api.post.getLatest.useSuspenseQuery();
@@ -60,7 +60,7 @@ export function LatestPost() {
           name="prompt"
           placeholder={placeholder}
           value={input}
-          onChange={handleInputChange}
+          onChange={event => setInput(event.target.value)}
           disabled={status !== 'ready'}
           className="w-full rounded-full bg-white/10 px-4 py-2 text-white flex-1"
         />
@@ -74,6 +74,13 @@ export function LatestPost() {
             status === 'error' && 'bg-red-400'
           )}
           disabled={['submitted', 'streaming', 'error'].includes(status)}
+          onClick={() => {
+            // Send a new message to the AI provider
+            append({
+              role: 'user',
+              content: input,
+            }).catch(console.error)
+          }}
         >
           {status === 'submitted' || status === 'streaming' ? (
             <Spinner color="text-primary" />
