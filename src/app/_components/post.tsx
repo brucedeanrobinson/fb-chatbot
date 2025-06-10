@@ -7,7 +7,7 @@ import { Spinner } from "~/components/ui/spinner";
 import clsx from "clsx";
 
 export function LatestPost() {
-  const { messages, input, handleInputChange, handleSubmit, status } = useChat({});
+  const { messages, setMessages, input, handleInputChange, handleSubmit, status } = useChat({});
 
   // todo replace with AI SDK
   const [latestPost] = api.post.getLatest.useSuspenseQuery();
@@ -30,6 +30,10 @@ export function LatestPost() {
     }
   }, []);
 
+  const handleDelete = (id: string) => {
+    setMessages(messages.filter(message => message.id !== id))
+  }
+
   // TODO: style like the Message Thread project from last week, with extra flair
   // TODO: extract repeat styles to common
   const buttonStyle = "cursor-pointer rounded-full bg-primary hover:bg-secondary text-white px-10 py-3 font-semibold transition-colors duration-200"
@@ -46,6 +50,7 @@ export function LatestPost() {
         <div key={message.id}>
           {message.role === 'user' ? 'User: ' : 'AI: '}
           {message.content}
+          <button onClick={() => handleDelete(message.id)}>Delete</button>
         </div>
       ))}
 
