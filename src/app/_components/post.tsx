@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useChat } from '@ai-sdk/react';
 import { api } from "~/trpc/react";
 import Image from 'next/image'
@@ -50,6 +50,9 @@ export function LatestPost() {
     }
   });
 
+  const [files, setFiles] = useState<FileList | undefined>(undefined);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
   // todo replace with AI SDK x databases
   // const [latestPost] = api.post.getLatest.useSuspenseQuery();
 
@@ -84,15 +87,21 @@ export function LatestPost() {
               <span className="font-bold">
                 {message.role === 'user' ? 'User: ' : 'AI: '}
               </span>
-              {message.parts.map((part, index) => {
-                if (part.type === 'text') {
-                  return <div key={index}>{part.text}</div>;
-                } else if (part.type === 'file' && part.mimeType.startsWith('image/')) {
-                  return (
-                    <Image key={index} src={`data:${part.mimeType};base64,${part.data}`} alt="" />
-                  );
-                }
-              })}
+              {message.content}
+
+              <div>
+                {message.experimental_attachments
+                  ?.filter(attachment =>
+                    attachment.contentType?.startsWith('image/'),
+                  )
+                  .map((attachment, index) => (
+                    <Image
+                      key={`${message.id}-${index}`}
+                      src={attachment.url}
+                      alt={attachment.name ?? 'Attached image'}
+                    />
+                  ))}
+              </div>
             </div>
             <button
               onClick={() => handleDelete(message.id)}
@@ -150,8 +159,15 @@ export function LatestPost() {
         } else {
           handleSubmit(event, {
             allowEmptySubmit: true,
+            experimental_attachments: files,
             body: input.trim() === '' ? { customKey: placeholder } : undefined
           });
+
+          setFiles(undefined);
+
+          if (fileInputRef.current) {
+            fileInputRef.current.value = '';
+          }
         }
       }} className="flex flex-col gap-4">
         <textarea
@@ -168,26 +184,43 @@ export function LatestPost() {
         />
 
         {/* possible status: submitted, streaming, ready, error */}
-        <button
-          type="submit"
-          className={clsx(
-            roundedUiElement,
-            buttonStyle,
-            buttonPrimaryStyle,
-            'w-1/4 mx-auto',
-            ['submitted', 'streaming', 'error'].includes(status) && 'cursor-not-allowed',
-            status === 'error' && 'bg-error-light'
-          )}
-          disabled={['submitted', 'streaming', 'error'].includes(status)}
-        >
-          {status === 'submitted' || status === 'streaming' ? (
-            <Spinner color="text-primary" />
-          ) : status === 'error' ? (
-            'Error'
-          ) : (
-            'Submit'
-          )}
-        </button>
+        <div className="flex flex-row place-content-between">
+          <input
+            type="file"
+            className={clsx(
+              roundedUiElement,
+              buttonStyle,
+              buttonSecondaryStyle,
+              'w-max')}
+            onChange={event => {
+              if (event.target.files) {
+                setFiles(event.target.files);
+              }
+            }}
+            multiple
+            ref={fileInputRef}
+          />
+          <button
+            type="submit"
+            className={clsx(
+              roundedUiElement,
+              buttonStyle,
+              buttonPrimaryStyle,
+              'w-1/4 mx-auto',
+              ['submitted', 'streaming', 'error'].includes(status) && 'cursor-not-allowed',
+              status === 'error' && 'bg-error-light'
+            )}
+            disabled={['submitted', 'streaming', 'error'].includes(status)}
+          >
+            {status === 'submitted' || status === 'streaming' ? (
+              <Spinner color="text-primary" />
+            ) : status === 'error' ? (
+              'Error'
+            ) : (
+              'Submit'
+            )}
+          </button>
+        </div>
       </form>
     </div>
   );
