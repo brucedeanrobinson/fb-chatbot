@@ -9,7 +9,28 @@ import clsx from "clsx";
 export function LatestPost() {
   const { messages, setMessages, input, setInput, handleSubmit, status, stop, reload } = useChat({
     // Throttle the messages and data updates to 50ms for smoother performance
-    experimental_throttle: 50
+    experimental_throttle: 50,
+    // Event callbacks for logging, analytics, and error handling
+    onFinish: (message, { usage, finishReason }) => {
+      console.log('Finished streaming message:', message);
+      console.log('Token usage:', usage);
+      console.log('Finish reason:', finishReason);
+      // TODO: Add analytics tracking here
+      // analytics.track('chat_message_completed', { finishReason, tokenUsage: usage });
+    },
+    onError: (error) => {
+      console.error('Chat error occurred:', error);
+      // TODO: Add error reporting here
+      // errorReporting.captureException(error);
+    },
+    onResponse: (response) => {
+      console.log('Received HTTP response from server:', response);
+      // TODO: Add response monitoring here
+      // can abort processing by throwing an error here if needed
+      // if (!response.ok) {
+      //   throw new Error('Unexpected response from AI provider');
+      // }
+    }
   });
 
   // todo replace with AI SDK
