@@ -8,6 +8,20 @@ import clsx from "clsx";
 
 export function LatestPost() {
   const { messages, setMessages, input, setInput, handleSubmit, status, stop, reload } = useChat({
+    // Custom API endpoint and request configuration
+    api: '/api/chat', // can change this to '/api/custom-chat' if needed
+    headers: {
+      'Authorization': 'Bearer your_token_here', // Replace with actual auth token
+      'X-Custom-Header': 'your-custom-value',
+      // Add any other custom headers your API needs
+    },
+    body: {
+      user_id: '123', // Replace with actual user ID
+      session_id: crypto.randomUUID(), // Generate unique session ID
+      // Add any other persistent body fields your backend needs
+    },
+    credentials: 'same-origin', // Configure credentials for CORS
+
     // Throttle the messages and data updates to 50ms for smoother performance
     experimental_throttle: 50,
     // Event callbacks for logging, analytics, and error handling
@@ -110,7 +124,13 @@ export function LatestPost() {
         </div>
       )}
 
-      <form onSubmit={handleSubmit} className="flex gap-2">
+      <form onSubmit={event => {
+        handleSubmit(event, {
+          body: {
+            customKey: 'customValue',
+          },
+        });
+      }} className="flex gap-2">
         <input
           type="text"
           name="prompt"
