@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useRef } from "react";
 import { useChat } from '@ai-sdk/react';
+import type { Attachment } from '@ai-sdk/ui-utils';
 import { api } from "~/trpc/react";
 import Image from 'next/image'
 import clsx from "clsx";
@@ -10,7 +11,7 @@ import { Spinner } from "~/components/ui/spinner";
 import { getRandomPrompt } from "~/lib/prompts";
 
 export function LatestPost() {
-  const { messages, setMessages, input, setInput, handleSubmit, append, status, stop, reload } = useChat({
+  const { messages, setMessages, input, setInput, handleSubmit, handleInputChange, status, append, stop, reload } = useChat({
     // Custom API endpoint and request configuration
     api: '/api/chat', // can change this to '/api/custom-chat' if needed
     headers: {
@@ -50,7 +51,19 @@ export function LatestPost() {
     }
   });
 
-  const [files, setFiles] = useState<FileList | undefined>(undefined);
+  const [files, setFiles] = useState<Attachment[]>([
+    {
+      name: 'earth.png',
+      contentType: 'image/png',
+      url: 'https://example.com/earth.png',
+    },
+    {
+      name: 'moon.png',
+      contentType: 'image/png',
+      url: 'data:image/png;base64,iVBORw0KGgo...',
+    },
+  ]);
+
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   // todo replace with AI SDK x databases
@@ -163,7 +176,7 @@ export function LatestPost() {
             body: input.trim() === '' ? { customKey: placeholder } : undefined
           });
 
-          setFiles(undefined);
+          setFiles(files);
 
           if (fileInputRef.current) {
             fileInputRef.current.value = '';
@@ -193,9 +206,9 @@ export function LatestPost() {
               buttonSecondaryStyle,
               'w-max')}
             onChange={event => {
-              if (event.target.files) {
-                setFiles(event.target.files);
-              }
+              handleSubmit(event, {
+                experimental_attachments: files,
+              })
             }}
             multiple
             ref={fileInputRef}
