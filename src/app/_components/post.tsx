@@ -3,8 +3,10 @@
 import { useState, useEffect } from "react";
 import { useChat } from '@ai-sdk/react';
 import { api } from "~/trpc/react";
-import { Spinner } from "~/components/ui/spinner";
 import clsx from "clsx";
+
+import { Spinner } from "~/components/ui/spinner";
+import { getRandomPrompt } from "~/lib/prompts";
 
 export function LatestPost() {
   const { messages, setMessages, input, setInput, handleSubmit, append, status, stop, reload } = useChat({
@@ -50,27 +52,9 @@ export function LatestPost() {
   // todo replace with AI SDK
   const [latestPost] = api.post.getLatest.useSuspenseQuery();
 
-  const seedPrompts = [
-    "What is the *New Earth* vision, and how does it challenge extractive systems?",
-    "How can nature's mycelium networks inspire technology for a better world?",
-    "What are Gitcoin Grants, and how do they fund projects that help communities thrive?",
-    "How does Web3 create a more creative and empowering future for everyone?",
-    "What does it mean to build technology with 'mycelial wisdom'?",
-    "How can decentralized tech support regenerative projects like eco-farming or education?",
-    "What's the 'hidden Good' in crypto that most people don't talk about?",
-    "How do tools like Gitcoin Grants make funding fairer and more community-driven?",
-    "What are mycelial design patterns, and how do they connect to a flourishing future?",
-    "How can Web3 and nature-inspired systems work together to heal the planet?"
-  ];
   const [placeholder, setPlaceholder] = useState("")
   useEffect(() => {
-    const index = Math.floor(Math.random() * seedPrompts.length);
-    const randomPrompt = seedPrompts[index];
-    if (randomPrompt !== undefined) {
-      setPlaceholder(randomPrompt);
-    } else {
-      setPlaceholder("Inquire within.")
-    }
+    setPlaceholder(getRandomPrompt())
   }, []);
 
   const handleDelete = (id: string) => {
@@ -101,7 +85,7 @@ export function LatestPost() {
             </div>
             <button
               onClick={() => handleDelete(message.id)}
-              className="ml-2 px-2 py-1 bg-red-600 text-white text-xs rounded hover:bg-red-500"
+              className="ml-2 px-2 py-1 bg-error text-white text-xs rounded hover:bg-error-light"
             >
               Delete
             </button>
@@ -171,7 +155,7 @@ export function LatestPost() {
           className={clsx(
             buttonStyle,
             ['submitted', 'streaming', 'error'].includes(status) && 'cursor-not-allowed',
-            status === 'error' && 'bg-red-400'
+            status === 'error' && 'bg-error-light'
           )}
           disabled={['submitted', 'streaming', 'error'].includes(status)}
         >
