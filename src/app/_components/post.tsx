@@ -77,58 +77,94 @@ export function LatestPost() {
       )} */}
 
       {messages.map(message => (
-        <div key={message.id} className="mb-2 p-2 border border-gray-600 rounded">
+        <div key={message.id} className="mb-4 p-4 border border-gray-600 rounded-lg relative">
           <div className="flex justify-between items-start">
             <div>
               <span className="font-bold">
                 {message.role === 'user' ? 'User: ' : 'AI: '}
               </span>
-              <span>{message.content}</span>
+
+
+              {/* Render message parts (supports reasoning) */}
+              {message.parts?.map((part, index) => {
+                // Reasoning parts
+                if (part.type === 'reasoning') {
+                  return (
+                    <details key={index} className="my-2">
+                      <summary className="cursor-pointer text-blue-400 hover:text-blue-300 text-sm">
+                        🤔 Show AI's thinking process
+                      </summary>
+                      <pre className="bg-gray-800 p-3 rounded mt-2 text-xs text-gray-300 overflow-x-auto">
+                        {part.details?.map(detail =>
+                          detail.type === 'text' ? detail.text : '<redacted>'
+                        ).join('')}
+                      </pre>
+                    </details>
+                  );
+                }
+
+                // Text parts  
+                if (part.type === 'text') {
+                  return <div key={index} className="mt-1">{part.text}</div>;
+                }
+
+                return null;
+              }) ?? (
+                  // Fallback for messages without parts (older format)
+                  <div className="mt-1">{message.content}</div>
+                )}
             </div>
-            <button
-              onClick={() => handleDelete(message.id)}
-              className="ml-2 px-2 py-1 bg-error text-white text-xs rounded hover:bg-error-light"
-            >
-              Delete
-            </button>
+
+
           </div>
+          <button
+            onClick={() => handleDelete(message.id)}
+            className="ml-2 px-2 py-1 bg-error text-white text-xs rounded hover:bg-error-light"
+          >
+            Delete
+          </button>
         </div>
-      ))}
+      ))
+      }
 
       {/* Show streaming status and stop/regenerate controls */}
-      {(status === 'submitted' || status === 'streaming') && (
-        <div className="flex items-center gap-2 my-4">
-          {status === 'submitted' && <Spinner color="text-primary" />}
-          <span className="text-sm text-gray-400">
-            {status === 'submitted' ? 'Sending...' : 'AI is responding...'}
-          </span>
-          <button
-            type="button"
-            onClick={() => stop()}
-            className={clsx(buttonSecondaryStyle, "text-sm px-4 py-1")}
-          >
-            Stop
-          </button>
-        </div>
-      )}
+      {
+        (status === 'submitted' || status === 'streaming') && (
+          <div className="flex items-center gap-2 my-4">
+            {status === 'submitted' && <Spinner color="text-primary" />}
+            <span className="text-sm text-gray-400">
+              {status === 'submitted' ? 'Sending...' : 'AI is responding...'}
+            </span>
+            <button
+              type="button"
+              onClick={() => stop()}
+              className={clsx(buttonSecondaryStyle, "text-sm px-4 py-1")}
+            >
+              Stop
+            </button>
+          </div>
+        )
+      }
 
       {/* Show regenerate button when ready or error */}
-      {(status === 'ready' || status === 'error') && messages.length > 0 && (
-        <div className="flex justify-end my-4">
-          <button
-            type="button"
-            onClick={() => reload()}
-            disabled={!(status === 'ready' || status === 'error')}
-            className={clsx(
-              roundedUiElement,
-              buttonStyle,
-              buttonSecondaryStyle,
-              "text-sm px-4 py-1")}
-          >
-            Regenerate Last Response
-          </button>
-        </div>
-      )}
+      {
+        (status === 'ready' || status === 'error') && messages.length > 0 && (
+          <div className="flex justify-end my-4">
+            <button
+              type="button"
+              onClick={() => reload()}
+              disabled={!(status === 'ready' || status === 'error')}
+              className={clsx(
+                roundedUiElement,
+                buttonStyle,
+                buttonSecondaryStyle,
+                "text-sm px-4 py-1")}
+            >
+              Regenerate Last Response
+            </button>
+          </div>
+        )
+      }
 
       <form onSubmit={event => {
         // If empty, prevent default and manually append the placeholder
@@ -180,6 +216,6 @@ export function LatestPost() {
           )}
         </button>
       </form>
-    </div>
+    </div >
   );
 }
