@@ -83,7 +83,24 @@ export function LatestPost() {
               <span className="font-bold">
                 {message.role === 'user' ? 'User: ' : 'AI: '}
               </span>
-              <span>{message.content}</span>
+              {message.parts
+                .filter(part => part.type !== 'source')
+                .map((part, index) => {
+                  if (part.type === 'text') {
+                    return <div key={index}>{part.text}</div>;
+                  }
+                })}
+              {message.parts
+                .filter(part => part.type === 'source')
+                .map(part => (
+                  <span key={`source-${part.source.id}`}>
+                    [
+                    <a href={part.source.url} target="_blank">
+                      {part.source.title ?? new URL(part.source.url).hostname}
+                    </a>
+                    ]
+                  </span>
+                ))}
             </div>
             <button
               onClick={() => handleDelete(message.id)}
