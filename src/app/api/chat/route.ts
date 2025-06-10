@@ -20,6 +20,7 @@ export async function POST(req: Request) {
   });
 
   return result.toDataStreamResponse({
+    sendReasoning: true,
     // Custom error message handling
     getErrorMessage: error => {
       if (error == null) {
