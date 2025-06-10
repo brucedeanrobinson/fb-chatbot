@@ -65,7 +65,6 @@ export function LatestPost() {
           className="w-full rounded-full bg-white/10 px-4 py-2 text-white flex-1"
         />
 
-        {/* possible status: submitted, streaming, ready, error */}
         <button
           type="submit"
           className={clsx(
@@ -74,13 +73,6 @@ export function LatestPost() {
             status === 'error' && 'bg-red-400'
           )}
           disabled={['submitted', 'streaming', 'error'].includes(status)}
-          onClick={() => {
-            // Send a new message to the AI provider
-            append({
-              role: 'user',
-              content: input,
-            }).catch(console.error)
-          }}
         >
           {status === 'submitted' || status === 'streaming' ? (
             <Spinner color="text-primary" />
