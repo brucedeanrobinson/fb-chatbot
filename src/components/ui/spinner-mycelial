@@ -1,0 +1,19 @@
+// TODO npm i framer-motion and tweak this up (an idea generated from gpt)
+// import { motion } from 'framer-motion';
+
+// interface MycelialPulseProps {
+//   className?: string;
+//   size?: number;
+// }
+
+// export function MycelialPulse({ className = '', size = 20 }: MycelialPulseProps) {
+//   return (
+//     <motion.div
+//       className= {`rounded-full ${className}`
+// }
+// style = {{ width: size, height: size, backgroundColor: 'oklch(var(--primary))' }}
+// animate = {{ scale: [1, 1.4, 1] }}
+// transition = {{ duration: 1.6, repeat: Infinity, ease: 'easeInOut' }}
+//     />
+//   );
+// }
