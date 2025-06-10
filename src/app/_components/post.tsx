@@ -7,11 +7,7 @@ import { Spinner } from "~/components/ui/spinner";
 import clsx from "clsx";
 
 export function LatestPost() {
-  const { messages, setMessages, input, setInput, handleSubmit, status, stop, reload } = useChat({
-
-    //could change to plain text streaming but lose tool calls, usage information, finish reasons https://ai-sdk.dev/docs/ai-sdk-ui/stream-protocol
-    //streamProtocol: 'text',
-
+  const { messages, setMessages, input, setInput, handleSubmit, append, status, stop, reload } = useChat({
     // Custom API endpoint and request configuration
     api: '/api/chat', // can change this to '/api/custom-chat' if needed
     headers: {
@@ -55,11 +51,16 @@ export function LatestPost() {
   const [latestPost] = api.post.getLatest.useSuspenseQuery();
 
   const seedPrompts = [
-    "What is the New Earth?",
-    "How is crypto like mycelium?",
-    "Tell me about Gitcoin in forest terms.",
-    "How does Web3 empower communities?",
-    "What does 'mycelial technology' mean?",
+    "What is the *New Earth* vision, and how does it challenge extractive systems?",
+    "How can nature's mycelium networks inspire technology for a better world?",
+    "What are Gitcoin Grants, and how do they fund projects that help communities thrive?",
+    "How does Web3 create a more creative and empowering future for everyone?",
+    "What does it mean to build technology with 'mycelial wisdom'?",
+    "How can decentralized tech support regenerative projects like eco-farming or education?",
+    "What's the 'hidden Good' in crypto that most people don't talk about?",
+    "How do tools like Gitcoin Grants make funding fairer and more community-driven?",
+    "What are mycelial design patterns, and how do they connect to a flourishing future?",
+    "How can Web3 and nature-inspired systems work together to heal the planet?"
   ];
   const [placeholder, setPlaceholder] = useState("")
   useEffect(() => {
@@ -90,12 +91,21 @@ export function LatestPost() {
       )}
 
       {messages.map(message => (
-        <div key={message.id}>
-          <div>
-            {message.role === 'user' ? 'User: ' : 'AI: '}
-            {message.content}
+        <div key={message.id} className="mb-2 p-2 border border-gray-600 rounded">
+          <div className="flex justify-between items-start">
+            <div>
+              <span className="font-bold">
+                {message.role === 'user' ? 'User: ' : 'AI: '}
+              </span>
+              <span>{message.content}</span>
+            </div>
+            <button
+              onClick={() => handleDelete(message.id)}
+              className="ml-2 px-2 py-1 bg-red-600 text-white text-xs rounded hover:bg-red-500"
+            >
+              Delete
+            </button>
           </div>
-          <button onClick={() => handleDelete(message.id)}>Delete</button>
         </div>
       ))}
 
@@ -131,11 +141,19 @@ export function LatestPost() {
       )}
 
       <form onSubmit={event => {
-        handleSubmit(event, {
-          allowEmptySubmit: true,
-          // If input is empty, use the placeholder
-          body: input.trim() === '' ? { customContent: placeholder } : undefined
-        });
+        // If empty, prevent default and manually append the placeholder
+        if (input.trim() === '') {
+          event.preventDefault();
+          void append({
+            role: 'user',
+            content: placeholder,
+          });
+        } else {
+          handleSubmit(event, {
+            allowEmptySubmit: true,
+            body: input.trim() === '' ? { customKey: placeholder } : undefined
+          });
+        }
       }} className="flex gap-2">
         <input
           type="text"
