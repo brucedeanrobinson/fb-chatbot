@@ -49,8 +49,8 @@ export function LatestPost() {
     }
   });
 
-  // todo replace with AI SDK
-  const [latestPost] = api.post.getLatest.useSuspenseQuery();
+  // todo replace with AI SDK x databases
+  // const [latestPost] = api.post.getLatest.useSuspenseQuery();
 
   const [placeholder, setPlaceholder] = useState("")
   useEffect(() => {
@@ -63,18 +63,18 @@ export function LatestPost() {
 
   // TODO: style like the Message Thread project from last week, with extra flair
   // TODO: extract repeat styles to common
-  const roundedUiElement = "rounded-lg cursor-pointer text-white px-6 py-3"
-  const buttonStyle = "font-semibold transition-colors duration-200"
+  const roundedUiElement = "rounded-lg text-white px-6 py-3"
+  const buttonStyle = "font-semibold cursor-pointer transition-colors duration-200"
   const buttonPrimaryStyle = "bg-primary hover:bg-secondary"
   const buttonSecondaryStyle = "bg-gray-600 hover:bg-gray-500"
 
   return (
     <div className="w-full max-w-xl">
-      {latestPost ? (
+      {/* {latestPost ? (
         <p className="truncate">Chatbot: {latestPost.name}</p>
       ) : (
         <p>You have no history with this chatbot.</p>
-      )}
+      )} */}
 
       {messages.map(message => (
         <div key={message.id} className="mb-2 p-2 border border-gray-600 rounded">
@@ -151,7 +151,10 @@ export function LatestPost() {
           value={input}
           onChange={event => setInput(event.target.value)}
           disabled={status !== 'ready'}
-          className={clsx(roundedUiElement, "w-full bg-white/10 flex-1")}
+          className={clsx(
+            roundedUiElement,
+            "cursor-text",
+            "w-full bg-white/10 flex-1")}
           rows={3}
         />
 

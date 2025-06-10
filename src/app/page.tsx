@@ -2,9 +2,9 @@ import { LatestPost } from "~/app/_components/post";
 import { api, HydrateClient } from "~/trpc/server";
 
 export default async function Home() {
-  const hello = await api.post.hello({ text: "from tRPC" });
+  // const hello = await api.post.hello({ text: "from tRPC" });
 
-  void api.post.getLatest.prefetch();
+  // void api.post.getLatest.prefetch();
 
   return (
     <HydrateClient>
@@ -13,11 +13,11 @@ export default async function Home() {
           <h1 className="text-3xl font-extrabold tracking-tight">
             <span className="text-title">Mycelial Guide</span> Chatbot
           </h1>
-          <div className="flex flex-col items-center gap-2">
+          {/* <div className="flex flex-col items-center gap-2">
             <p className="text-sm text-white">
               {hello ? hello.greeting : "Loading tRPC query..."}
             </p>
-          </div>
+          </div> */}
 
           <LatestPost />
         </div>
