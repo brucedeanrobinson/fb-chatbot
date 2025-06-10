@@ -4,9 +4,10 @@ import { useState, useEffect } from "react";
 import { useChat } from '@ai-sdk/react';
 import { api } from "~/trpc/react";
 import { Spinner } from "~/components/ui/spinner";
+import clsx from "clsx";
 
 export function LatestPost() {
-  const { messages, input, handleInputChange, handleSubmit, status, stop } = useChat({});
+  const { messages, input, handleInputChange, handleSubmit, status } = useChat({});
 
   // todo replace with AI SDK
   const [latestPost] = api.post.getLatest.useSuspenseQuery();
@@ -55,31 +56,26 @@ export function LatestPost() {
           placeholder={placeholder}
           value={input}
           onChange={handleInputChange}
+          disabled={status !== 'ready'}
           className="w-full rounded-full bg-white/10 px-4 py-2 text-white flex-1"
         />
 
         {/* possible status: submitted, streaming, ready, error */}
-        {(status === 'submitted' || status === 'streaming') && (
-          <div>
-            {status === 'submitted' && <Spinner />}
-            <button
-              type="button"
-              className={buttonStyle}
-              onClick={() => stop()}>
-              Stop
-            </button>
-          </div>
-        )}
-
         <button
           type="submit"
-          className={buttonStyle}
-          disabled={status === 'submitted' || status === 'streaming'}
+          className={clsx(
+            buttonStyle,
+            ['submitted', 'streaming', 'error'].includes(status) && 'cursor-not-allowed',
+            status === 'error' && 'bg-red-400'
+          )}
+          disabled={['submitted', 'streaming', 'error'].includes(status)}
         >
-          {(status === 'submitted' || status === 'streaming') ? (
-            <Spinner color='text-primary' />
+          {status === 'submitted' || status === 'streaming' ? (
+            <Spinner color="text-primary" />
+          ) : status === 'error' ? (
+            'Error'
           ) : (
-            "Submit"
+            'Submit'
           )}
         </button>
       </form>
